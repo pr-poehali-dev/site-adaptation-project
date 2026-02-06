@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -6,14 +6,52 @@ import Icon from '@/components/ui/icon';
 const Index = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const [currentTrack, setCurrentTrack] = useState({
+    artist: 'Загрузка...',
+    title: 'Подключение к эфиру',
+    dj: 'Восток FM'
+  });
+  
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const hosts = [
-    { name: 'Гарик Авакян', role: 'Ведущий' },
-    { name: 'Рустем Азизов', role: 'Ведущий' },
-    { name: 'Михаил Азаров', role: 'Ведущий' },
-    { name: 'DJ Ramis', role: 'DJ' },
-    { name: 'Ден Ковалия', role: 'Ведущий' },
-    { name: 'Наиля Шахова', role: 'Ведущая' },
+    { 
+      name: 'Ден Ковалия', 
+      role: 'Ведущий',
+      photo: 'https://download.vostok.fm/pub/6634.jpg',
+      show: 'Утреннее шоу'
+    },
+    { 
+      name: 'Рустем Азизов', 
+      role: 'Ведущий',
+      photo: 'https://download.vostok.fm/pub/6609.jpg',
+      show: 'Дневной эфир'
+    },
+    { 
+      name: 'Наиля Шахова', 
+      role: 'Ведущая',
+      photo: 'https://download.vostok.fm/pub/6597.jpg',
+      show: 'Вечерний эфир'
+    },
+    { 
+      name: 'Михаил Азаров', 
+      role: 'Ведущий',
+      photo: 'https://download.vostok.fm/pub/6612.jpg',
+      show: 'Прайм-тайм'
+    },
+    { 
+      name: 'Гарик Авакян', 
+      role: 'Ведущий',
+      photo: 'https://download.vostok.fm/pub/6615.jpg',
+      show: 'Ночной эфир'
+    },
+    { 
+      name: 'DJ Ramis', 
+      role: 'DJ',
+      photo: 'https://download.vostok.fm/pub/6618.jpg',
+      show: 'DJ Mix'
+    },
   ];
 
   const cities = [
@@ -25,19 +63,42 @@ const Index = () => {
     { name: 'Нальчик', freq: '98,6 FM' },
   ];
 
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
+
+  const currentOnAirHost = hosts[0];
+
   return (
     <div className="min-h-screen bg-background">
+      <audio 
+        ref={audioRef} 
+        src="https://stream2.n340.com:8443/18_vostok_64_reg_1?type=.aac"
+        preload="none"
+      />
+
       <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                <Icon name="Radio" className="text-white" size={24} />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Восток FM</h1>
-                <p className="text-xs text-muted-foreground">С нами отпуск круглый год!</p>
-              </div>
+              <img 
+                src="https://img.vostok.fm/public/img/logo2.png" 
+                alt="Восток FM" 
+                className="h-12 w-auto"
+              />
             </div>
             
             <nav className="hidden lg:flex items-center gap-6">
@@ -71,67 +132,98 @@ const Index = () => {
         </div>
       </header>
 
-      <section id="live" className="relative py-24 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent">
+      <section id="live" className="relative py-24 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-secondary">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-64 h-64 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
         </div>
         
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-5xl mx-auto text-center text-white">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full mb-8 animate-pulse">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span className="text-sm font-semibold tracking-wide">В ЭФИРЕ СЕЙЧАС</span>
-            </div>
-            
-            <h2 className="text-6xl md:text-7xl font-bold mb-4 drop-shadow-lg">Восток FM</h2>
-            <p className="text-2xl md:text-3xl mb-4 text-white/95 font-medium">С нами отпуск круглый год!</p>
-            <p className="text-lg mb-12 text-white/80">Настроение летнего отпуска в каждом звуке</p>
-            
-            <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-10 mb-10 shadow-2xl">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="text-left flex-1">
-                  <p className="text-sm text-white/70 mb-2 uppercase tracking-wide">Сейчас в эфире</p>
-                  <p className="text-3xl md:text-4xl font-bold mb-2">Прямой эфир</p>
-                  <p className="text-xl text-white/90">Москва 94,0 FM</p>
-                </div>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="w-24 h-24 rounded-full bg-white hover:bg-white/95 shadow-xl hover:scale-110 transition-all"
-                  onClick={() => setIsPlaying(!isPlaying)}
-                >
-                  <Icon name={isPlaying ? "Pause" : "Play"} size={40} className="text-primary" />
-                </Button>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center text-white mb-12">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full mb-8">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-semibold tracking-wide">В ЭФИРЕ СЕЙЧАС</span>
               </div>
               
-              <div className="mt-8 space-y-2">
-                <div className="flex justify-between text-sm text-white/70">
-                  <span>Громкость</span>
-                  <span>80%</span>
-                </div>
-                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-white to-accent rounded-full w-4/5 transition-all"></div>
-                </div>
-              </div>
-            </Card>
+              <h2 className="text-6xl md:text-7xl font-bold mb-4 drop-shadow-lg">Восток FM</h2>
+              <p className="text-2xl md:text-3xl mb-4 text-white/95 font-medium">С нами отпуск круглый год!</p>
+              <p className="text-lg mb-12 text-white/80">Настроение летнего отпуска в каждом звуке</p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-6 hover:bg-white/20 transition-all">
-                <Icon name="Users" size={36} className="mb-3 mx-auto text-white" />
-                <p className="text-3xl font-bold mb-1">883K+</p>
-                <p className="text-sm text-white/90">Слушателей в месяц</p>
+            <div className="grid lg:grid-cols-3 gap-8 mb-10">
+              <Card className="lg:col-span-2 bg-white/15 backdrop-blur-xl border-white/30 p-8 shadow-2xl">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  <div className="flex-shrink-0">
+                    <div className="relative">
+                      <img 
+                        src={currentOnAirHost.photo}
+                        alt={currentOnAirHost.name}
+                        className="w-32 h-32 rounded-full object-cover border-4 border-white/30 shadow-xl"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentOnAirHost.name) + '&size=128&background=FF6B35&color=fff';
+                        }}
+                      />
+                      <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                        <Icon name="Mic" size={20} className="text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 text-center md:text-left">
+                    <p className="text-sm text-white/70 mb-1 uppercase tracking-wide">В эфире</p>
+                    <h3 className="text-3xl font-bold mb-1 text-white">{currentOnAirHost.name}</h3>
+                    <p className="text-xl text-white/90 mb-3">{currentOnAirHost.show}</p>
+                    <div className="text-white/80">
+                      <p className="text-sm mb-1">Сейчас играет:</p>
+                      <p className="font-semibold">{currentTrack.title}</p>
+                      <p className="text-sm">{currentTrack.artist}</p>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="w-24 h-24 rounded-full bg-white hover:bg-white/95 shadow-xl hover:scale-110 transition-all flex-shrink-0"
+                    onClick={togglePlay}
+                  >
+                    <Icon name={isPlaying ? "Pause" : "Play"} size={40} className="text-primary" />
+                  </Button>
+                </div>
+                
+                <div className="mt-8 space-y-2">
+                  <div className="flex justify-between text-sm text-white/70">
+                    <span>Громкость</span>
+                    <span>{volume}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="100" 
+                    value={volume}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                    className="w-full h-2 bg-white/20 rounded-full appearance-none cursor-pointer accent-white"
+                  />
+                </div>
               </Card>
-              <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-6 hover:bg-white/20 transition-all">
-                <Icon name="MapPin" size={36} className="mb-3 mx-auto text-white" />
-                <p className="text-3xl font-bold mb-1">100+</p>
-                <p className="text-sm text-white/90">Городов России</p>
-              </Card>
-              <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-6 hover:bg-white/20 transition-all">
-                <Icon name="Waves" size={36} className="mb-3 mx-auto text-white" />
-                <p className="text-3xl font-bold mb-1">24/7</p>
-                <p className="text-sm text-white/90">В эфире</p>
-              </Card>
+
+              <div className="space-y-4">
+                <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-6 hover:bg-white/20 transition-all text-white">
+                  <Icon name="Users" size={36} className="mb-3 mx-auto" />
+                  <p className="text-3xl font-bold mb-1">883K+</p>
+                  <p className="text-sm text-white/90">Слушателей в месяц</p>
+                </Card>
+                <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-6 hover:bg-white/20 transition-all text-white">
+                  <Icon name="MapPin" size={36} className="mb-3 mx-auto" />
+                  <p className="text-3xl font-bold mb-1">100+</p>
+                  <p className="text-sm text-white/90">Городов России</p>
+                </Card>
+                <Card className="bg-white/15 backdrop-blur-xl border-white/30 p-6 hover:bg-white/20 transition-all text-white">
+                  <Icon name="Waves" size={36} className="mb-3 mx-auto" />
+                  <p className="text-3xl font-bold mb-1">24/7</p>
+                  <p className="text-sm text-white/90">В эфире</p>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
@@ -140,7 +232,7 @@ const Index = () => {
       <section id="frequencies" className="py-20 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Частоты вещания
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -155,7 +247,7 @@ const Index = () => {
                 className="p-6 hover:shadow-xl transition-all hover:scale-105 border-2 hover:border-primary"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                     <Icon name="Radio" size={28} className="text-white" />
                   </div>
                   <div>
@@ -168,7 +260,7 @@ const Index = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <Card className="inline-block p-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
+            <Card className="inline-block p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
               <div className="flex items-center gap-4">
                 <Icon name="Headphones" size={40} className="text-primary" />
                 <div className="text-left">
@@ -181,24 +273,38 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="hosts" className="py-20">
+      <section id="hosts" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Наши ведущие
             </h2>
             <p className="text-muted-foreground text-lg">Голоса, которые создают настроение</p>
           </div>
 
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {hosts.map((host, index) => (
-              <Card key={index} className="p-8 hover:shadow-2xl transition-all group hover:scale-105">
-                <div className="text-center">
-                  <div className="w-28 h-28 bg-gradient-to-br from-primary via-accent to-primary rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                    <Icon name="Mic" size={48} className="text-white" />
+              <Card key={index} className="overflow-hidden hover:shadow-2xl transition-all group hover:scale-105">
+                <div className="relative h-64 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+                  <img 
+                    src={host.photo}
+                    alt={host.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(host.name) + '&size=400&background=FF6B35&color=fff';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <Icon name="Mic" size={16} className="text-white" />
+                      </div>
+                      <span className="text-white/90 text-sm font-medium">{host.role}</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-1">{host.name}</h3>
+                    <p className="text-white/90">{host.show}</p>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">{host.name}</h3>
-                  <p className="text-primary font-semibold text-lg">{host.role}</p>
                 </div>
               </Card>
             ))}
@@ -206,10 +312,10 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="advertising" className="py-20 bg-gradient-to-br from-primary via-primary to-accent text-white relative overflow-hidden">
+      <section id="advertising" className="py-20 bg-gradient-to-br from-primary via-primary to-secondary text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 left-10 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
         </div>
 
         <div className="container mx-auto px-4 relative">
@@ -243,14 +349,14 @@ const Index = () => {
                 <div>
                   <Icon name="Phone" size={40} className="mx-auto mb-3" />
                   <p className="text-xl font-semibold mb-2">Телефон</p>
-                  <a href="tel:+74959253317" className="text-2xl font-bold hover:text-accent transition-colors">
+                  <a href="tel:+74959253317" className="text-2xl font-bold hover:text-secondary transition-colors">
                     +7 (495) 925-33-17
                   </a>
                 </div>
                 <div>
                   <Icon name="Mail" size={40} className="mx-auto mb-3" />
                   <p className="text-xl font-semibold mb-2">Email</p>
-                  <a href="mailto:reklama@vostok.fm" className="text-2xl font-bold hover:text-accent transition-colors">
+                  <a href="mailto:reklama@vostok.fm" className="text-2xl font-bold hover:text-secondary transition-colors">
                     reklama@vostok.fm
                   </a>
                 </div>
@@ -264,7 +370,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 О радиостанции
               </h2>
               <p className="text-muted-foreground text-lg">Восток FM — это настроение летнего отпуска в каждом звуке</p>
@@ -272,7 +378,7 @@ const Index = () => {
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
               <Card className="p-8 hover:shadow-xl transition-all">
-                <Icon name="Sun" size={48} className="text-accent mb-4" />
+                <Icon name="Sun" size={48} className="text-primary mb-4" />
                 <h3 className="text-2xl font-bold mb-4">Наша философия</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   С нами отпуск круглый год! Мы создаем атмосферу праздника и позитива, 
@@ -281,7 +387,7 @@ const Index = () => {
               </Card>
 
               <Card className="p-8 hover:shadow-xl transition-all">
-                <Icon name="Award" size={48} className="text-accent mb-4" />
+                <Icon name="Award" size={48} className="text-primary mb-4" />
                 <h3 className="text-2xl font-bold mb-4">Наши достижения</h3>
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-2">
@@ -303,11 +409,11 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="contacts" className="py-20">
+      <section id="contacts" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Контакты
               </h2>
               <p className="text-muted-foreground text-lg">Мы всегда на связи</p>
@@ -357,7 +463,7 @@ const Index = () => {
               </Card>
             </div>
 
-            <Card className="p-10 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20">
+            <Card className="p-10 bg-gradient-to-br from-primary/5 to-secondary/5 border-2 border-primary/20">
               <h3 className="text-2xl font-bold mb-6 text-center">Напишите нам</h3>
               <form className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
@@ -394,7 +500,7 @@ const Index = () => {
                     placeholder="Расскажите о вашем запросе..."
                   ></textarea>
                 </div>
-                <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all">
+                <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all">
                   <Icon name="Send" size={20} className="mr-2" />
                   Отправить сообщение
                 </Button>
@@ -404,14 +510,15 @@ const Index = () => {
         </div>
       </section>
 
-      <footer className="bg-gradient-to-br from-primary to-accent text-white py-16">
+      <footer className="bg-gradient-to-br from-primary to-secondary text-white py-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-10 mb-12">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Icon name="Radio" size={28} />
-                <span className="font-bold text-2xl">Восток FM</span>
-              </div>
+              <img 
+                src="https://img.vostok.fm/public/img/logo2.png" 
+                alt="Восток FM" 
+                className="h-12 w-auto mb-4 brightness-0 invert"
+              />
               <p className="text-white/85 text-sm leading-relaxed mb-4">
                 С нами отпуск круглый год! Настроение летнего отпуска в каждом звуке.
               </p>
